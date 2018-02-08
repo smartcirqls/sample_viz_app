@@ -1,0 +1,93 @@
+<dashboard>
+  <label>Karma Overview</label>
+  <row>
+    <panel>
+      <single>
+        <title>Ninja</title>
+        <search base="top_ninja">
+          <query>| fields title</query>
+          <!--<earliest>-24h@h</earliest>
+          <latest>now</latest>-->
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Highest Karma</title>
+        <search base="top_ninja">
+          <query>| fields karma</query>
+          <!--<earliest>-24h@h</earliest>
+          <latest>now</latest>-->
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Avg Karma</title>
+        <search base="top_ninja">
+          <query>| fields karma | stats avg(karma) AS karma_avg</query>
+          <!--<earliest>-24h@h</earliest>
+          <latest>now</latest>-->
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Top Scorers</title>
+        <search id="top_ninja">
+          <query>index=* sourcetype="web_input" | stats latest(karma) AS karma by title | sort - karma</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="title">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax" minValue="0"></scale>
+        </format>
+        <format type="color" field="karma">
+          <colorPalette type="minMidMax" maxColor="#31A35F" midColor="#FFFFFF" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax" midValue="0" minValue="0"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Top Performers</title>
+        <search>
+          <query>index=* sourcetype="web_input" | stats latest(karma) AS karma_last earliest(karma) AS karma_first by title | eval progress=karma_last-karma_first | sort - progress</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="progress">
+          <colorPalette type="minMidMax" maxColor="#31A35F" midColor="#FFFFFF" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax" midValue="0" minValue="0"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Karma over Time</title>
+        <search>
+          <query>index=* sourcetype=web_input | timechart limit=20 usenull=false span=10m latest(karma) AS karma by title</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>
